@@ -1,0 +1,98 @@
+{
+  "project_info": {
+    "project_number": "1021367726448",
+    "project_id": "single-salon-provider-f791a",
+    "storage_bucket": "single-salon-provider-f791a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1021367726448:android:fcc5e6491a50e329ac1fb5",
+        "android_client_info": {
+          "package_name": "com.example.salon_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1021367726448-d66fs8vniuhsfeto04d9710noscr87j0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDapr9rrWv0bIL-VXkad6Mk2vQ7ozHPVQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1021367726448-d66fs8vniuhsfeto04d9710noscr87j0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1021367726448-rpktda5bia5jnnom7l6lfkc8hkropb7r.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.coifastVendor"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1021367726448:android:cf8aa4828398a062ac1fb5",
+        "android_client_info": {
+          "package_name": "com.vook4me.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1021367726448-12f42v9rpc1mq14iue7b00u1ncv03o93.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vook4me.app",
+            "certificate_hash": "377e4cfd4dd15c01ce65abed8e8bcdef774308c1"
+          }
+        },
+        {
+          "client_id": "1021367726448-geions2jq5u8kkg3mmg8gol019ihnhge.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vook4me.app",
+            "certificate_hash": "fdacc1e53b2cdb92c0b45a6421158f5aaf33829a"
+          }
+        },
+        {
+          "client_id": "1021367726448-d66fs8vniuhsfeto04d9710noscr87j0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDapr9rrWv0bIL-VXkad6Mk2vQ7ozHPVQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1021367726448-d66fs8vniuhsfeto04d9710noscr87j0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1021367726448-rpktda5bia5jnnom7l6lfkc8hkropb7r.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.coifastVendor"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
