@@ -64,7 +64,7 @@ class Carousel extends StatelessWidget {
               Align(
                 child: Image.network(
                   "https://images.squarespace-cdn.com/content/v1/5e867df9747b0e555c337eef/1589945925617-4NY8TG8F76FH1O0P46FW/Kampaamo-helsinki-hair-design-balayage-hiustenpidennys-varjays.png",
-                  width: 120,
+                  width: 100,
                   height: 400,
                   fit: BoxFit.cover,
                 ),
@@ -72,7 +72,6 @@ class Carousel extends StatelessWidget {
             ],
           ),
         ),
-
         Container(
           height: 40,
           width: 400,
@@ -128,7 +127,7 @@ class Carousel extends StatelessWidget {
               Align(
                 child: Image.network(
                   "https://img.grouponcdn.com/bynder/2sLSquS1xGWk4QjzYuL7h461CDsJ/2s-2048x1229/v1/sc600x600.jpg",
-                  width: 120,
+                  width: 100,
                   height: 400,
                   fit: BoxFit.cover,
                 ),
@@ -136,7 +135,6 @@ class Carousel extends StatelessWidget {
             ],
           ),
         ),
-
       ],
       options: CarouselOptions(
         //autoPlayInterval: Duration(minutes: 1),

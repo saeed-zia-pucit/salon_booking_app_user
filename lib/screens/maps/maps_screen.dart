@@ -39,7 +39,7 @@ class _MapsPageState extends State<MapsPage> {
             mapController = controller;
             addMarker('your current location', currentLocation);
             addMarker('destination', destinationLocation);
-            setPolyLines();
+            // setPolyLines();
           },
           markers: _marker.values.toSet(),
           polylines: _polyline),
@@ -70,30 +70,30 @@ class _MapsPageState extends State<MapsPage> {
     setState(() {});
   }
 
-  void setPolyLines() async {
-    print("object");
-    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-        'API_KEY',
-        PointLatLng(currentLocation.latitude, currentLocation.longitude),
-        PointLatLng(
-            destinationLocation.latitude, destinationLocation.longitude));
-    print("status and poins = ");
-    print(result.errorMessage);
-    print(result.points);
-    if (result.status == 'OK') {
-      for (var element in result.points) {
-        polylinecoord.add(LatLng(element.latitude, element.longitude));
-      }
+  // void setPolyLines() async {
+  //   print("object");
+  //   PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+  //       'API_KEY',
+  //       PointLatLng(currentLocation.latitude, currentLocation.longitude),
+  //       PointLatLng(
+  //           destinationLocation.latitude, destinationLocation.longitude));
+  //   print("status and poins = ");
+  //   print(result.errorMessage);
+  //   print(result.points);
+  //   if (result.status == 'OK') {
+  //     for (var element in result.points) {
+  //       polylinecoord.add(LatLng(element.latitude, element.longitude));
+  //     }
 
-      setState(() {
-        _polyline.add(
-          Polyline(
-              polylineId: const PolylineId('polyLine'),
-              width: 10,
-              color: Colors.red,
-              points: polylinecoord),
-        );
-      });
-    }
-  }
+  //     setState(() {
+  //       _polyline.add(
+  //         Polyline(
+  //             polylineId: const PolylineId('polyLine'),
+  //             width: 10,
+  //             color: Colors.red,
+  //             points: polylinecoord),
+  //       );
+  //     });
+  //   }
+  // }
 }

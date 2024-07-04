@@ -52,8 +52,9 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
             // dayTextStyle: TextStyle(color: Colors.white),
             deactivatedColor: Colors.white,
             initialSelectedDate: DateTime.now(),
-            selectionColor: Colors.white,
+            selectionColor: Colors.green,
             selectedTextColor: const Color(0xff721c80),
+            height: 90,
             onDateChange: (date) {
               setState(() {
                 print(date.day);

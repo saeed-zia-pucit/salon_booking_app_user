@@ -5,7 +5,8 @@ import 'package:salon_app/screens/maps/maps_screen.dart';
 import 'package:salon_app/screens/profile/profile_screen.dart';
 
 class BottomNavigationComponent extends StatefulWidget {
-  const BottomNavigationComponent({super.key});
+  int? index;
+  BottomNavigationComponent({super.key, this.index});
 
   @override
   State<BottomNavigationComponent> createState() =>
@@ -26,6 +27,14 @@ class _BottomNavigationComponentState extends State<BottomNavigationComponent> {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  @override
+  void initState() {
+    if (widget.index != null) {
+      _onItemTapped(widget.index ?? 2);
+    }
+    super.initState();
   }
 
   @override

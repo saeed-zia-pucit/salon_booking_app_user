@@ -1,8 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:salon_app/components/bottom_navigationbar.dart';
-import 'package:salon_app/provider/user_provider.dart';
+import 'package:salon_app/models/user_response_model.dart';
+import 'package:salon_app/view_models/home_view_model.dart';
+import 'package:salon_app/utils/functions.dart';
 
 import '../../controller/auth_controller.dart';
 
@@ -44,14 +47,13 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   List imgUrl = [
     "https://thumbs.dreamstime.com/b/hairdresser-protective-mask-cutting-hair-curly-african-american-client-beauty-salon-free-space-195792989.jpg",
     "https://as2.ftcdn.net/v2/jpg/02/65/48/75/1000_F_265487582_hg1t4uvUI33fhRDTdxVyHTNjv0F5WdX4.jpg",
-    "https://www.nextinsurance.com/wp-content/uploads/2018/05/shutterstock_256912663-802x454.jpg",
+    // "https://www.nextinsurance.com/wp-content/uploads/2018/05/shutterstock_256912663-802x454.jpg",
   ];
 
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
 
     return Scaffold(
         backgroundColor: Colors.grey[100],
@@ -106,24 +108,24 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                                   ? const Color(0xff721c80).withOpacity(0.8)
                                   : Colors.grey.withOpacity(0.8)),
                     ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    AnimatedContainer(
-                      duration: const Duration(seconds: 1),
-                      curve: Curves.fastOutSlowIn,
-                      height: 5,
-                      width: 30,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          color:
-                              600 < controllerOffset && controllerOffset < 800
-                                  ? const Color(0xff721c80).withOpacity(0.8)
-                                  : Colors.grey.withOpacity(0.8)),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
+                    // const SizedBox(
+                    //   width: 10,
+                    // ),
+                    // AnimatedContainer(
+                    //   duration: const Duration(seconds: 1),
+                    //   curve: Curves.fastOutSlowIn,
+                    //   height: 5,
+                    //   width: 30,
+                    //   decoration: BoxDecoration(
+                    //       borderRadius: BorderRadius.circular(20),
+                    //       color:
+                    //           600 < controllerOffset && controllerOffset < 800
+                    //               ? const Color(0xff721c80).withOpacity(0.8)
+                    //               : Colors.grey.withOpacity(0.8)),
+                    // ),
+                    // const SizedBox(
+                    //   width: 10,
+                    // ),
                   ],
                 ),
               ),
@@ -145,14 +147,50 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
             GestureDetector(
               onTap: () {
                 Authentication.signInWithGoogle(context: context)
-                    .then(((value) {
-                  if (value != null) {
-                    userProvider.setUser(value);
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (ctx) => const BottomNavigationComponent()),
-                    );
+                    .then(((user) async {
+                  if (user != null) {
+                    // userProvider.setUser(user);
+                    final DocumentSnapshot userDoc = await FirebaseFirestore
+                        .instance
+                        .collection('salon-users')
+                        .doc(user.uid)
+                        .get();
+                    if (!userDoc.exists) {
+                      // Create a new user document
+                      await FirebaseFirestore.instance
+                          .collection('salon-users')
+                          .doc(user.uid)
+                          .set({
+                        'uid': user.uid,
+                        'name': user.displayName,
+                        'email': user.email,
+                        'image_url': user.photoURL
+                      });
+
+                      final DocumentSnapshot userDoc = await FirebaseFirestore
+                          .instance
+                          .collection('salon-users')
+                          .doc(user.uid)
+                          .get();
+
+                      final userData = userDoc.data() as Map<String, dynamic>;
+                      UserResponseModel userResponseModel =
+                          UserResponseModel.fromJson(userData);
+                      spUtil?.user = userResponseModel;
+                    } else {
+                      final userData = userDoc.data() as Map<String, dynamic>;
+                      UserResponseModel userResponseModel =
+                          UserResponseModel.fromJson(userData);
+                      spUtil?.user = userResponseModel;
+                    }
+                    Future.delayed(Duration.zero, () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (ctx) =>
+                                BottomNavigationComponent()),
+                      );
+                    });
                   }
                 }));
               },
@@ -174,7 +212,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                 ),
                 child: const Center(
                     child: Text(
-                  "Get Started",
+                  "Sign in with Google",
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 18,
