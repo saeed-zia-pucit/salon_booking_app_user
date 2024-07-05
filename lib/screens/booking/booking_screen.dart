@@ -1,11 +1,15 @@
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:salon_app/components/date_piceker.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:salon_app/components/date_picker.dart';
 import 'package:salon_app/models/service_response_model.dart';
 import 'package:salon_app/models/time_slot_model.dart';
+import 'package:salon_app/utils/constants.dart';
 import 'package:salon_app/utils/functions.dart';
+import 'package:salon_app/view_models/home_view_model.dart';
 import 'package:salon_app/widgets/loader_widget.dart';
 
 class BookingScreen extends StatefulWidget {
@@ -15,40 +19,21 @@ class BookingScreen extends StatefulWidget {
   State<BookingScreen> createState() => _BookingScreenState();
 }
 
-class _BookingScreenState extends State<BookingScreen> {
+class _BookingScreenState extends State<BookingScreen> implements Presenter {
   int selectedIndex = 0;
 
-  bool showLoading = false;
-
-  onClick(int index) {
-    setState(() {
-      selectedIndex = index;
-    });
-  }
+  late HomeViewModel homeViewModel;
 
   List<TimeSlotModel> timeSlots = [];
 
-  // final List<Map<String, dynamic>> chips = [
-  //   {'time': '10:00 AM', 'is_selected': true},
-  //   {'time': '11:00 AM', 'is_selected': false},
-  //   {'time': '12:00 PM', 'is_selected': false},
-  //   {'time': '01:00 PM', 'is_selected': false},
-  //   {'time': '02:00 PM', 'is_selected': false},
-  //   {'time': '03:00 PM', 'is_selected': false},
-  //   {'time': '04:00 PM', 'is_selected': false},
-  //   {'time': '05:00 PM', 'is_selected': false},
-  //   {'time': '06:00 PM', 'is_selected': false},
-  //   {'time': '07:00 PM', 'is_selected': false},
-  //   {'time': '08:00 PM', 'is_selected': false},
-  //   {'time': '09:00 PM', 'is_selected': false},
-  //   {'time': '10:00 PM', 'is_selected': false},
-  // ];
-
   List<ServiceResponseModel> selectedServices = [];
-  // List<String> timeSlots = [];
+  String? bookingOn; // Date
 
   @override
   void initState() {
+    String formattedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    bookingOn = formattedDate;
+    log("Initial booking day value: $bookingOn");
     Future.delayed(Duration.zero, () {
       final serviceIds = spUtil?.provider.store?.serviceIds;
       for (int i = 0; i < (serviceIds?.length ?? 0); i++) {
@@ -91,6 +76,12 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    homeViewModel = Provider.of<HomeViewModel>(context);
+    super.didChangeDependencies();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Material(
       child: Stack(
@@ -117,11 +108,12 @@ class _BookingScreenState extends State<BookingScreen> {
                           bottomLeft: Radius.circular(30),
                           bottomRight: Radius.circular(30)),
                     ),
-                    child: const Padding(
-                      padding: EdgeInsets.only(top: 38, left: 18, right: 18),
+                    child: Padding(
+                      padding:
+                          const EdgeInsets.only(top: 38, left: 18, right: 18),
                       child: Column(
                         children: [
-                          Row(
+                          const Row(
                             children: [
                               Spacer(),
                               Text(
@@ -135,7 +127,13 @@ class _BookingScreenState extends State<BookingScreen> {
                               Spacer(),
                             ],
                           ),
-                          CustomDatePicker(),
+                          CustomDatePicker(
+                            onDateChanged: (date) {
+                              bookingOn = date;
+                              log(bookingOn ?? ''); // Output: 2024-07-06
+                              setState(() {});
+                            },
+                          ),
                         ],
                       ),
                     ),
@@ -173,25 +171,17 @@ class _BookingScreenState extends State<BookingScreen> {
                                           childAspectRatio: 3 / 1),
                                   itemCount: timeSlots.length,
                                   itemBuilder: (context, index) {
-                                    // return Chip(
-                                    //   padding: const EdgeInsets.symmetric(horizontal: 14),
-                                    //   shape: RoundedRectangleBorder(
-                                    //     borderRadius: BorderRadius.circular(14),
-                                    //     side: const BorderSide(color: Colors.purple),
-                                    //   ),
-                                    // label: Text(
-                                    //   chip['time'],
-                                    //   style: const TextStyle(
-                                    //       color: Colors.purple, fontSize: 13.0),
-                                    //   // style: TextStyle(color: chip.labelColor),
-                                    // ),
-                                    // );
                                     return InkWell(
                                       onTap: () {
-                                        timeSlots.forEach((element) {
-                                          element.isSelected = false;
-                                        });
-                                        timeSlots[index].isSelected = true;
+                                        // timeSlots.forEach((element) {
+                                        //   element.isSelected = false;
+                                        // });
+                                        if (timeSlots[index].isSelected ??
+                                            false) {
+                                          timeSlots[index].isSelected = false;
+                                        } else {
+                                          timeSlots[index].isSelected = true;
+                                        }
                                         setState(() {});
                                       },
                                       child: Container(
@@ -236,42 +226,6 @@ class _BookingScreenState extends State<BookingScreen> {
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16),
                               ),
-                        // Row(
-                        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        //   children: [
-                        //     Chip(
-                        //       padding: const EdgeInsets.symmetric(horizontal: 14),
-                        //       shape: RoundedRectangleBorder(
-                        //           borderRadius: BorderRadius.circular(14),
-                        //           side: const BorderSide()),
-                        //       label: const Text("10:00 AM"),
-                        //       backgroundColor: Colors.white,
-                        //     ),
-                        //     Chip(
-                        //       padding: const EdgeInsets.symmetric(horizontal: 14),
-                        //       shape: RoundedRectangleBorder(
-                        //           borderRadius: BorderRadius.circular(14),
-                        //           side: const BorderSide()),
-                        //       label: const Text(
-                        //         "10:00 AM",
-                        //         style: TextStyle(color: Colors.white),
-                        //       ),
-                        //       backgroundColor: Colors.purple,
-                        //     ),
-                        //     Chip(
-                        //       padding: const EdgeInsets.symmetric(horizontal: 14),
-                        //       shape: RoundedRectangleBorder(
-                        //           borderRadius: BorderRadius.circular(14),
-                        //           side: const BorderSide()),
-                        //       label: const Text("10:00 AM"),
-                        //       backgroundColor: Colors.white,
-                        //     ),
-                        //   ],
-                        // ),
-                        // ChipWrapper(),
-                        // ChipWrapper(),
-                        // ChipWrapper(),
-
                         const SizedBox(
                           height: 10,
                         ),
@@ -306,26 +260,27 @@ class _BookingScreenState extends State<BookingScreen> {
                             (timeSlots
                                 .any((element) => element.isSelected == true))
                         ? (() async {
-                            showLoading = true;
+                            List<int> serviceIdList = [];
+                            List<String> timeSlotValues = [];
+                            for (int i = 0;
+                                i < (selectedServices.length);
+                                i++) {
+                              if (selectedServices[i].isSelected == true) {
+                                serviceIdList.add(selectedServices[i].id ?? 0);
+                              }
+                            }
+                            for (int i = 0; i < (timeSlots.length); i++) {
+                              if (timeSlots[i].isSelected == true) {
+                                timeSlotValues.add(timeSlots[i].name ?? '');
+                              }
+                            }
                             setState(() {});
-                            Future.delayed(const Duration(seconds: 2), () {
-                              showLoading = false;
-                              setState(() {});
-                              showConfirmationPopup(context,
-                                  title: "Appointment Booked",
-                                  description:
-                                      "Your appointment has been successfully booked. Thank you!",
-                                  onConfirm: () {
-                                timeSlots.forEach((element) {
-                                  element.isSelected = false;
-                                });
-                                selectedServices.forEach((element) {
-                                  element.isSelected = false;
-                                });
-                                setState(() {});
-                                Navigator.pop(context);
-                              });
-                            });
+                            homeViewModel.createBooking(context, this,
+                                userId: spUtil?.user.uid ?? '',
+                                providerId: spUtil?.provider.uid ?? '',
+                                bookingOn: bookingOn ?? '',
+                                services: serviceIdList,
+                                timeSlots: timeSlotValues);
                             // var snap = FirebaseFirestore.instance.collection('workers');
                             // List data = [];
                             // snap.doc('G9ZvAbTR9HvoiMChKrTA').get().then((value) {
@@ -385,7 +340,12 @@ class _BookingScreenState extends State<BookingScreen> {
               ),
             ),
           ),
-          Visibility(visible: showLoading, child: const LoaderWidget())
+          Consumer<HomeViewModel>(builder: (context, value, child) {
+            return Visibility(
+              visible: homeViewModel.loading,
+              child: const LoaderWidget(),
+            );
+          }),
         ],
       ),
     );
@@ -395,10 +355,14 @@ class _BookingScreenState extends State<BookingScreen> {
     return GestureDetector(
       onTap: (() {
         // onClick(index);
-        selectedServices.forEach((element) {
-          element.isSelected = false;
-        });
-        service.isSelected = true;
+        // selectedServices.forEach((element) {
+        //   element.isSelected = false;
+        // });
+        if (service.isSelected ?? false) {
+          service.isSelected = false;
+        } else {
+          service.isSelected = true;
+        }
         setState(() {});
       }),
       child: AnimatedContainer(
@@ -451,6 +415,28 @@ class _BookingScreenState extends State<BookingScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void onClick(String? action) {
+    switch (action) {
+      case onSuccess:
+        showConfirmationPopup(context,
+            title: "Appointment Booked",
+            description:
+                "Your appointment has been successfully booked. Thank you!",
+            onConfirm: () {
+          timeSlots.forEach((element) {
+            element.isSelected = false;
+          });
+          selectedServices.forEach((element) {
+            element.isSelected = false;
+          });
+          setState(() {});
+          Navigator.pop(context);
+        });
+        break;
+    }
   }
 }
 

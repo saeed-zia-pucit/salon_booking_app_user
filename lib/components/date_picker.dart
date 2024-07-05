@@ -1,10 +1,13 @@
+import 'dart:developer';
+
 import 'package:date_picker_timeline/date_picker_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class CustomDatePicker extends StatefulWidget {
-  const CustomDatePicker({
-    Key? key,
-  }) : super(key: key);
+  final ValueChanged<String> onDateChanged;
+  const CustomDatePicker({Key? key, required this.onDateChanged})
+      : super(key: key);
 
   @override
   State<CustomDatePicker> createState() => _CustomDatePickerState();
@@ -57,11 +60,12 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
             height: 90,
             onDateChange: (date) {
               setState(() {
-                print(date.day);
-                print(date.month);
-
-                /// String updateDate = date.toString();
                 newdate = date;
+                DateTime dateTime = DateTime.parse(newdate.toString());
+                // Format the date
+                String formattedDate =
+                    DateFormat('yyyy-MM-dd').format(dateTime);
+                widget.onDateChanged(formattedDate);
               });
             },
           ),

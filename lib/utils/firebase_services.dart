@@ -19,8 +19,7 @@ class FirebaseServices {
   }
 
   //* We'll fetch the provider data to show his/her offered services and available time slots for booking
-  static Future<ProviderResponseModel> getSalonProvider(
-      BuildContext context) async {
+  static Future<ProviderResponseModel> getSalonProvider() async {
     try {
       // Fetch the first provider from the 'users' collection
       final QuerySnapshot querySnapshot =
@@ -41,6 +40,32 @@ class FirebaseServices {
     } catch (e) {
       log("Error fetching salon provider: ${e.toString()}");
       throw Exception("Failed to fetch salon provider data.");
+    }
+  }
+
+  //* Create new booking for salon provider
+  // todo: userId, providerId, list of service IDs, list of selected time slots
+  static Future<void> createBooking(
+      {required String userId,
+      required String providerId,
+      required String bookingOn,
+      required List<int> services,
+      required List<String> timeSlots}) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection(
+              'bookings') // Replace 'users' with your actual collection name
+          .doc()
+          .set({
+            'user_id': userId,
+            'provider_id': providerId,
+            'services': services,
+            'time_slots': timeSlots,
+            'booking_on': bookingOn,
+            'created_at': DateTime.now()
+          });
+    } catch (e) {
+      throw Exception("Failed to create booking!");
     }
   }
 
