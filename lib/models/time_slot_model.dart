@@ -1,8 +1,9 @@
 class TimeSlotModel {
   String? name;
   bool? isSelected;
+  bool? isBooked;
 
-  TimeSlotModel({this.name, this.isSelected = false});
+  TimeSlotModel({this.name, this.isSelected = false, this.isBooked = false});
 
   TimeSlotModel.fromJson(Map<String, dynamic> json) {
     name = json['name'];

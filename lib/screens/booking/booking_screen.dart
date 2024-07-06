@@ -31,9 +31,9 @@ class _BookingScreenState extends State<BookingScreen> implements Presenter {
 
   @override
   void initState() {
-    String formattedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    bookingOn = formattedDate;
+    bookingOn = getFormattedDate(DateTime.now());
     log("Initial booking day value: $bookingOn");
+
     Future.delayed(Duration.zero, () {
       final serviceIds = spUtil?.provider.store?.serviceIds;
       for (int i = 0; i < (serviceIds?.length ?? 0); i++) {
@@ -70,6 +70,7 @@ class _BookingScreenState extends State<BookingScreen> implements Presenter {
           timeSlots.add(TimeSlotModel(name: element));
         }
       }
+      checkSlotAvailability(bookingOn ?? '');
       setState(() {});
     });
     super.initState();
@@ -131,6 +132,7 @@ class _BookingScreenState extends State<BookingScreen> implements Presenter {
                             onDateChanged: (date) {
                               bookingOn = date;
                               log(bookingOn ?? ''); // Output: 2024-07-06
+                              checkSlotAvailability(bookingOn ?? '');
                               setState(() {});
                             },
                           ),
@@ -173,9 +175,18 @@ class _BookingScreenState extends State<BookingScreen> implements Presenter {
                                   itemBuilder: (context, index) {
                                     return InkWell(
                                       onTap: () {
-                                        // timeSlots.forEach((element) {
-                                        //   element.isSelected = false;
-                                        // });
+                                        if (timeSlots[index].isBooked ??
+                                            false) {
+                                          showPopup(context,
+                                              title: "No Booking",
+                                              description:
+                                                  "This slot has already booked by someone!.",
+                                              onConfirm: () {
+                                            setState(() {});
+                                            Navigator.pop(context);
+                                          });
+                                          return;
+                                        }
                                         if (timeSlots[index].isSelected ??
                                             false) {
                                           timeSlots[index].isSelected = false;
@@ -189,8 +200,10 @@ class _BookingScreenState extends State<BookingScreen> implements Presenter {
                                           horizontal: 2.0,
                                         ),
                                         decoration: BoxDecoration(
-                                            color:
-                                                timeSlots[index].isSelected ==
+                                            color: (timeSlots[index].isBooked ??
+                                                    false)
+                                                ? Colors.grey.withOpacity(0.45)
+                                                : timeSlots[index].isSelected ==
                                                         true
                                                     ? Colors.purple
                                                     : Colors.white,
@@ -198,17 +211,26 @@ class _BookingScreenState extends State<BookingScreen> implements Presenter {
                                                 const BorderRadius.all(
                                                     Radius.circular(14)),
                                             border: Border.all(
-                                                color: Colors.purple)),
+                                                color: (timeSlots[index]
+                                                            .isBooked ??
+                                                        false)
+                                                    ? Colors.grey
+                                                        .withOpacity(0.45)
+                                                    : Colors.purple)),
                                         child: Center(
                                           child: Text(
                                             timeSlots[index].name ?? '',
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
-                                                color: timeSlots[index]
-                                                            .isSelected ==
-                                                        true
-                                                    ? Colors.white
-                                                    : Colors.purple,
+                                                color: (timeSlots[index]
+                                                            .isBooked ??
+                                                        false)
+                                                    ? Colors.grey
+                                                    : timeSlots[index]
+                                                                .isSelected ==
+                                                            true
+                                                        ? Colors.white
+                                                        : Colors.purple,
                                                 fontSize: 13.0),
                                             // style: TextStyle(color: chip.labelColor),
                                           ),
@@ -417,11 +439,32 @@ class _BookingScreenState extends State<BookingScreen> implements Presenter {
     );
   }
 
+  checkSlotAvailability(String bookingDate) async {
+    await homeViewModel.getBookings(context, this, bookingDate: bookingDate);
+    log("Slots fetched for $bookingOn");
+    timeSlots.forEach((element) {
+      element.isBooked = false;
+    });
+
+    for (int i = 0; i < (homeViewModel.bookingList.length); i++) {
+      for (int j = 0;
+          j < (homeViewModel.bookingList[i].timeSlots?.length ?? 0);
+          j++) {
+        for (int k = 0; k < (timeSlots.length); k++) {
+          if (homeViewModel.bookingList[i].timeSlots?[j] == timeSlots[k].name) {
+            timeSlots[k].isBooked = true;
+          }
+        }
+      }
+    }
+    setState(() {});
+  }
+
   @override
   void onClick(String? action) {
     switch (action) {
       case onSuccess:
-        showConfirmationPopup(context,
+        showPopup(context,
             title: "Appointment Booked",
             description:
                 "Your appointment has been successfully booked. Thank you!",
@@ -433,6 +476,7 @@ class _BookingScreenState extends State<BookingScreen> implements Presenter {
             element.isSelected = false;
           });
           setState(() {});
+          checkSlotAvailability(bookingOn ?? '');
           Navigator.pop(context);
         });
         break;

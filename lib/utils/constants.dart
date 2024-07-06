@@ -5,3 +5,4 @@ const keyServices = "keyServices";
 
 // callbacks
 const onSuccess = "onSuccess";
+const onBookingsFetched = "onBookingsFetched";

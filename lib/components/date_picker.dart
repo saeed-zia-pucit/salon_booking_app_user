@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:date_picker_timeline/date_picker_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:salon_app/utils/functions.dart';
 
 class CustomDatePicker extends StatefulWidget {
   final ValueChanged<String> onDateChanged;
@@ -63,8 +64,7 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
                 newdate = date;
                 DateTime dateTime = DateTime.parse(newdate.toString());
                 // Format the date
-                String formattedDate =
-                    DateFormat('yyyy-MM-dd').format(dateTime);
+                String formattedDate = getFormattedDate(dateTime);
                 widget.onDateChanged(formattedDate);
               });
             },

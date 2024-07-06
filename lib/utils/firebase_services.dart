@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:salon_app/models/booking_model.dart';
 import 'package:salon_app/models/provider_response_model.dart';
 import 'package:salon_app/models/service_response_model.dart';
 import 'package:salon_app/utils/functions.dart';
@@ -44,7 +45,6 @@ class FirebaseServices {
   }
 
   //* Create new booking for salon provider
-  // todo: userId, providerId, list of service IDs, list of selected time slots
   static Future<void> createBooking(
       {required String userId,
       required String providerId,
@@ -57,15 +57,34 @@ class FirebaseServices {
               'bookings') // Replace 'users' with your actual collection name
           .doc()
           .set({
-            'user_id': userId,
-            'provider_id': providerId,
-            'services': services,
-            'time_slots': timeSlots,
-            'booking_on': bookingOn,
-            'created_at': DateTime.now()
-          });
+        'user_id': userId,
+        'provider_id': providerId,
+        'services': services,
+        'time_slots': timeSlots,
+        'booking_on': bookingOn,
+        'created_at': DateTime.now()
+      });
     } catch (e) {
       throw Exception("Failed to create booking!");
+    }
+  }
+
+  //* Fetch bookings based on booking date
+  static Future<List<BookingModel>> getBookings({required String bookingDate}) async {
+    try {
+      QuerySnapshot snapshot = await _firestore
+          .collection('bookings')
+          .where('booking_on', isEqualTo: bookingDate)
+          .get();
+
+      List<BookingModel> bookings = [];
+      bookings = snapshot.docs
+          .map((doc) =>
+              BookingModel.fromJson(doc.data() as Map<String, dynamic>))
+          .toList();
+      return bookings;
+    } catch (e) {
+      throw Exception("Failed to fetch bookings!");
     }
   }
 

@@ -52,7 +52,7 @@ void showError(BuildContext context, String message) {
   ScaffoldMessenger.of(context).showSnackBar(snackBar);
 }
 
-showConfirmationPopup(BuildContext context,
+showPopup(BuildContext context,
     {required String? title,
     required String? description,
     required VoidCallback? onConfirm}) {
@@ -94,4 +94,9 @@ showConfirmationPopup(BuildContext context,
       );
     },
   );
+}
+
+String getFormattedDate(DateTime date) {
+  String formattedDate = DateFormat('yyyy-MM-dd').format(date);
+  return formattedDate;
 }
