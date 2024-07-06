@@ -145,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             )
                           : const Text(
-                              "No service found",
+                              "No service available",
                               style: TextStyle(
                                   color: Colors.black,
                                   //letterSpacing: 1.07,

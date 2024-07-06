@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:salon_app/components/date_picker.dart';
@@ -44,36 +45,58 @@ class _BookingScreenState extends State<BookingScreen> implements Presenter {
           }
         }
       }
+      getSlots();
+      setState(() {});
+    });
+    super.initState();
+  }
 
-      List<String> slots = [];
-      if (spUtil?.provider.store?.availableSlot?.id == 1) {
-        // 30 mins
-        slots = generateTimeSlots(
-            spUtil?.provider.store?.days?.first.startsAt?.first ?? '',
-            spUtil?.provider.store?.days?.first.finishesAt?.first ?? '',
-            30);
-      } else if (spUtil?.provider.store?.availableSlot?.id == 2) {
-        // 45 mins
-        slots = generateTimeSlots(
-            spUtil?.provider.store?.days?.first.startsAt?.first ?? '',
-            spUtil?.provider.store?.days?.first.finishesAt?.first ?? '',
-            45);
+  getSlots() {
+    timeSlots.clear();
+    List<String> slots = [];
+    if (spUtil?.provider.store?.availableSlot?.id == 1) {
+      // 30 mins
+      slots = generateTimeSlots(
+          spUtil?.provider.store?.days?.first.startsAt?.first ?? '',
+          spUtil?.provider.store?.days?.first.finishesAt?.first ?? '',
+          30);
+    } else if (spUtil?.provider.store?.availableSlot?.id == 2) {
+      // 45 mins
+      slots = generateTimeSlots(
+          spUtil?.provider.store?.days?.first.startsAt?.first ?? '',
+          spUtil?.provider.store?.days?.first.finishesAt?.first ?? '',
+          45);
+    } else {
+      // 1 hour
+      slots = generateTimeSlots(
+          spUtil?.provider.store?.days?.first.startsAt?.first ?? '',
+          spUtil?.provider.store?.days?.first.finishesAt?.first ?? '',
+          60);
+    }
+    if (slots.isNotEmpty) {
+      String currentDate = getFormattedDate(DateTime.now());
+      if (currentDate == bookingOn) {
+        DateTime now = DateTime.now();
+        String currentTimeString = DateFormat('HH:mm').format(now);
+        DateTime currentTime = DateFormat('HH:mm').parse(currentTimeString);
+        for (var element in slots) {
+          List<String> parts = element.split(' - ');
+          // DateTime startTime = DateFormat('HH:mm').parse(parts[0]);
+          DateTime endTime = DateFormat('HH:mm').parse(parts[1]);
+          if (currentTime.isBefore(endTime)) {
+            timeSlots.add(TimeSlotModel(name: element));
+          } else {
+            continue;
+          }
+        }
       } else {
-        // 1 hour
-        slots = generateTimeSlots(
-            spUtil?.provider.store?.days?.first.startsAt?.first ?? '',
-            spUtil?.provider.store?.days?.first.finishesAt?.first ?? '',
-            60);
-      }
-      if (slots.isNotEmpty) {
         for (var element in slots) {
           timeSlots.add(TimeSlotModel(name: element));
         }
       }
-      checkSlotAvailability(bookingOn ?? '');
-      setState(() {});
-    });
-    super.initState();
+    }
+    checkSlotAvailability(bookingOn ?? '');
+    setState(() {});
   }
 
   @override
@@ -132,7 +155,7 @@ class _BookingScreenState extends State<BookingScreen> implements Presenter {
                             onDateChanged: (date) {
                               bookingOn = date;
                               log(bookingOn ?? ''); // Output: 2024-07-06
-                              checkSlotAvailability(bookingOn ?? '');
+                              getSlots();
                               setState(() {});
                             },
                           ),
@@ -262,17 +285,30 @@ class _BookingScreenState extends State<BookingScreen> implements Presenter {
                         const SizedBox(
                           height: 20,
                         ),
-                        SizedBox(
-                          height: 120,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: selectedServices.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              return _serviceCard(
-                                  selectedServices[index], index);
-                            },
-                          ),
-                        )
+                        (selectedServices.isNotEmpty)
+                            ? SizedBox(
+                                height: 120,
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: selectedServices.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    return _serviceCard(
+                                        selectedServices[index], index);
+                                  },
+                                ),
+                              )
+                            : const Align(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  "No service available",
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      //letterSpacing: 1.07,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16),
+                                ),
+                              ),
                       ],
                     ),
                   ),
@@ -442,17 +478,21 @@ class _BookingScreenState extends State<BookingScreen> implements Presenter {
   checkSlotAvailability(String bookingDate) async {
     await homeViewModel.getBookings(context, this, bookingDate: bookingDate);
     log("Slots fetched for $bookingOn");
-    timeSlots.forEach((element) {
-      element.isBooked = false;
-    });
 
-    for (int i = 0; i < (homeViewModel.bookingList.length); i++) {
-      for (int j = 0;
-          j < (homeViewModel.bookingList[i].timeSlots?.length ?? 0);
-          j++) {
-        for (int k = 0; k < (timeSlots.length); k++) {
-          if (homeViewModel.bookingList[i].timeSlots?[j] == timeSlots[k].name) {
-            timeSlots[k].isBooked = true;
+    if (homeViewModel.bookingList.isNotEmpty) {
+      timeSlots.forEach((element) {
+        element.isBooked = false;
+      });
+
+      for (int i = 0; i < (homeViewModel.bookingList.length); i++) {
+        for (int j = 0;
+            j < (homeViewModel.bookingList[i].timeSlots?.length ?? 0);
+            j++) {
+          for (int k = 0; k < (timeSlots.length); k++) {
+            if (homeViewModel.bookingList[i].timeSlots?[j] ==
+                timeSlots[k].name) {
+              timeSlots[k].isBooked = true;
+            }
           }
         }
       }
