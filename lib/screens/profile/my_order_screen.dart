@@ -130,7 +130,7 @@ class _MyOrderScreenState extends State<MyOrderScreen> implements Presenter {
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
-                                              const Text("Reservation pending",
+                                              const Text("Reservation confirmed",
                                                   style: TextStyle(
                                                       color: Colors.white)),
                                               Text(
