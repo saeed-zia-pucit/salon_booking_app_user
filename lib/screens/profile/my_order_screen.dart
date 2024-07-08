@@ -75,79 +75,91 @@ class _MyOrderScreenState extends State<MyOrderScreen> implements Presenter {
                 height: 30,
               ),
               Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                  child: ListView.separated(
-                      padding: EdgeInsets.zero,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        return Container(
-                          width: MediaQuery.of(context).size.width,
-                          decoration: const BoxDecoration(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(8.0))),
-                          child: Stack(
-                            alignment: Alignment.bottomCenter,
-                            children: [
-                              ClipRRect(
-                                borderRadius: const BorderRadius.all(
-                                    Radius.circular(8.0)),
-                                child: CachedNetworkImage(
-                                    width: MediaQuery.of(context).size.width,
-                                    fit: BoxFit.cover,
-                                    imageUrl: homeViewModel.userBookings[index]
-                                            .provider?.profileImage ??
-                                        ''),
-                              ),
-                              Container(
+                child: homeViewModel.userBookings.isNotEmpty
+                    ? SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                        child: ListView.separated(
+                            padding: EdgeInsets.zero,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemBuilder: (context, index) {
+                              return Container(
                                 width: MediaQuery.of(context).size.width,
-                                padding: const EdgeInsets.all(5.0),
-                                decoration: BoxDecoration(
-                                    color: Colors.cyan[400],
-                                    borderRadius: const BorderRadius.only(
-                                        bottomLeft: Radius.circular(8.0),
-                                        bottomRight: Radius.circular(8.0))),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                decoration: const BoxDecoration(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(8.0))),
+                                child: Stack(
+                                  alignment: Alignment.bottomCenter,
                                   children: [
-                                    Text(
-                                      homeViewModel.userBookings[index].provider
-                                              ?.name ??
-                                          '',
-                                      style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold),
+                                    ClipRRect(
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(8.0)),
+                                      child: CachedNetworkImage(
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          fit: BoxFit.cover,
+                                          imageUrl: homeViewModel
+                                                  .userBookings[index]
+                                                  .provider
+                                                  ?.profileImage ??
+                                              ''),
                                     ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        const Text("Reservation pending",
-                                            style:
-                                                TextStyle(color: Colors.white)),
-                                        Text(
-                                          "${formatDateString(homeViewModel.userBookings[index].bookingOn ?? '')} ${formatTimeString(homeViewModel.userBookings[index].timeSlots?.first.split("-").first ?? '')}",
-                                          style: const TextStyle(
-                                              color: Colors.white),
-                                        )
-                                      ],
-                                    ),
+                                    Container(
+                                      width: MediaQuery.of(context).size.width,
+                                      padding: const EdgeInsets.all(5.0),
+                                      decoration: BoxDecoration(
+                                          color: Colors.cyan[400],
+                                          borderRadius: const BorderRadius.only(
+                                              bottomLeft: Radius.circular(8.0),
+                                              bottomRight:
+                                                  Radius.circular(8.0))),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            homeViewModel.userBookings[index]
+                                                    .provider?.name ??
+                                                '',
+                                            style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              const Text("Reservation pending",
+                                                  style: TextStyle(
+                                                      color: Colors.white)),
+                                              Text(
+                                                "${formatDateString(homeViewModel.userBookings[index].bookingOn ?? '')} ${formatTimeString(homeViewModel.userBookings[index].timeSlots?.first.split("-").first ?? '')}",
+                                                style: const TextStyle(
+                                                    color: Colors.white),
+                                              )
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    )
                                   ],
                                 ),
-                              )
-                            ],
-                          ),
-                        );
-                      },
-                      separatorBuilder: (context, index) {
-                        return const SizedBox(
-                          height: 20.0,
-                        );
-                      },
-                      itemCount: homeViewModel.userBookings.length),
-                ),
+                              );
+                            },
+                            separatorBuilder: (context, index) {
+                              return const SizedBox(
+                                height: 20.0,
+                              );
+                            },
+                            itemCount: homeViewModel.userBookings.length))
+                    : const Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          "No orders found!",
+                          style: TextStyle(fontSize: 20, color: Colors.black),
+                        ),
+                      ),
               )
             ],
           ),
