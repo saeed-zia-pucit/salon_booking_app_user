@@ -100,3 +100,31 @@ String getFormattedDate(DateTime date) {
   String formattedDate = DateFormat('yyyy-MM-dd').format(date);
   return formattedDate;
 }
+
+
+String formatDateString(String dateString) {
+  // Parse the input date string
+  DateTime parsedDate = DateTime.parse(dateString);
+
+  // Define the desired output format
+  DateFormat formatter = DateFormat('dd MMMM yyyy');
+
+  // Format the parsed date
+  String formattedDate = formatter.format(parsedDate);
+
+  return formattedDate;
+}
+
+
+String formatTimeString(String timeString) {
+  // Parse the input time string
+  DateTime parsedTime = DateFormat('HH:mm').parse(timeString);
+
+  // Define the desired output format
+  DateFormat formatter = DateFormat('hh:mm a');
+
+  // Format the parsed time
+  String formattedTime = formatter.format(parsedTime);
+
+  return formattedTime;
+}

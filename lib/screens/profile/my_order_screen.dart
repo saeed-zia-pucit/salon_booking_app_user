@@ -1,100 +1,169 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:salon_app/controller/auth_controller.dart';
+import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
 
 import 'package:salon_app/utils/functions.dart';
+import 'package:salon_app/view_models/home_view_model.dart';
 import 'package:salon_app/widgets/horizontal_line.dart';
+import 'package:salon_app/widgets/loader_widget.dart';
 
-class MyOrderScreen extends StatelessWidget {
+class MyOrderScreen extends StatefulWidget {
   // final User? user;
   const MyOrderScreen({
     Key? key,
   }) : super(key: key);
 
   @override
+  State<MyOrderScreen> createState() => _MyOrderScreenState();
+}
+
+class _MyOrderScreenState extends State<MyOrderScreen> implements Presenter {
+  late HomeViewModel homeViewModel;
+
+  @override
+  void initState() {
+    Future.delayed(Duration.zero, () {
+      getBookings();
+    });
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    homeViewModel = Provider.of<HomeViewModel>(context);
+    super.didChangeDependencies();
+  }
+
+  getBookings() async {
+    await homeViewModel.getUserBookings(context, this);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final user = spUtil?.user;
-
-    
-
     return Scaffold(
-      body: Column(
+      body: Stack(
+        alignment: Alignment.center,
         children: [
-          const SizedBox(
-            height: 50,
-          ),
-          Row(
+          Column(
             children: [
-              IconButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  icon: const Icon(
-                    Icons.arrow_back,
-                    size: 30,
-                    color: Color(0xff721c80),
-                  )),
               const SizedBox(
-                width: 20,
+                height: 50,
               ),
-              const Text("My Orders",
-                  style: TextStyle(
-                      color: Color(0xff721c80),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 24))
+              Row(
+                children: [
+                  IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(
+                        Icons.arrow_back,
+                        size: 30,
+                        color: Color(0xff721c80),
+                      )),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  const Text("My Orders",
+                      style: TextStyle(
+                          color: Color(0xff721c80),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 24))
+                ],
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                  child: ListView.separated(
+                      padding: EdgeInsets.zero,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        return Container(
+                          width: MediaQuery.of(context).size.width,
+                          decoration: const BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(8.0))),
+                          child: Stack(
+                            alignment: Alignment.bottomCenter,
+                            children: [
+                              ClipRRect(
+                                borderRadius: const BorderRadius.all(
+                                    Radius.circular(8.0)),
+                                child: CachedNetworkImage(
+                                    width: MediaQuery.of(context).size.width,
+                                    fit: BoxFit.cover,
+                                    imageUrl: homeViewModel.userBookings[index]
+                                            .provider?.profileImage ??
+                                        ''),
+                              ),
+                              Container(
+                                width: MediaQuery.of(context).size.width,
+                                padding: const EdgeInsets.all(5.0),
+                                decoration: BoxDecoration(
+                                    color: Colors.cyan[400],
+                                    borderRadius: const BorderRadius.only(
+                                        bottomLeft: Radius.circular(8.0),
+                                        bottomRight: Radius.circular(8.0))),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      homeViewModel.userBookings[index].provider
+                                              ?.name ??
+                                          '',
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const Text("Reservation pending",
+                                            style:
+                                                TextStyle(color: Colors.white)),
+                                        Text(
+                                          "${formatDateString(homeViewModel.userBookings[index].bookingOn ?? '')} ${formatTimeString(homeViewModel.userBookings[index].timeSlots?.first.split("-").first ?? '')}",
+                                          style: const TextStyle(
+                                              color: Colors.white),
+                                        )
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        );
+                      },
+                      separatorBuilder: (context, index) {
+                        return const SizedBox(
+                          height: 20.0,
+                        );
+                      },
+                      itemCount: homeViewModel.userBookings.length),
+                ),
+              )
             ],
           ),
-          const SizedBox(
-            height: 30,
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              child: ListView.separated(
-                  padding: EdgeInsets.zero,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemBuilder: (context, index) {
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Image.network(
-                          spUtil?.services[4].image ?? '',
-                          width: 80,
-                          height: 80,
-                          fit: BoxFit.scaleDown,
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text(
-                              "Hairstyling",
-                              style: TextStyle(
-                                  color: Color(0xff721c80), fontSize: 18),
-                            ),
-                            const SizedBox(
-                              height: 4,
-                            ),
-                            Text("10:00 AM",
-                                style: TextStyle(
-                                  color: Colors.grey[700],
-                                )),
-                          ],
-                        ),
-                      ],
-                    );
-                  },
-                  separatorBuilder: (context, index) {
-                    return Divider(
-                      color: Colors.grey[700],
-                    );
-                  },
-                  itemCount: 3),
-            ),
-          )
+          Consumer<HomeViewModel>(builder: (context, value, child) {
+            return Visibility(
+              visible: homeViewModel.loading,
+              child: const LoaderWidget(),
+            );
+          }),
         ],
       ),
     );
   }
+
+  @override
+  void onClick(String? action) {}
 }
 
 class SectionCard extends StatelessWidget {

@@ -334,8 +334,6 @@ class _BookingScreenState extends State<BookingScreen> implements Presenter {
                             }
                             setState(() {});
                             homeViewModel.createBooking(context, this,
-                                userId: spUtil?.user.uid ?? '',
-                                providerId: spUtil?.provider.uid ?? '',
                                 bookingOn: bookingOn ?? '',
                                 services: serviceIdList,
                                 timeSlots: timeSlotValues);

@@ -53,16 +53,12 @@ class HomeViewModel extends ChangeNotifier {
 
   // Create a new booking
   Future<void> createBooking(BuildContext context, Presenter presenter,
-      {required String userId,
-      required String providerId,
-      required String bookingOn,
+      {required String bookingOn,
       required List<int> services,
       required List<String> timeSlots}) async {
     try {
       setLoading(true);
       await FirebaseServices.createBooking(
-          userId: userId,
-          providerId: providerId,
           services: services,
           bookingOn: bookingOn,
           timeSlots: timeSlots);
@@ -84,6 +80,31 @@ class HomeViewModel extends ChangeNotifier {
       setLoading(true);
       bookingList = await FirebaseServices.getBookings(bookingDate: bookingDate);
       presenter.onClick(onBookingsFetched);
+    } catch (e) {
+      Future.delayed(Duration.zero, () {
+        showError(context, e.toString());
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+
+  // User bookings list
+  List<BookingModel> _userbookings = [];
+  
+  List<BookingModel> get userBookings => _userbookings;
+  
+  set userBookings(List<BookingModel> value) {
+    _userbookings = value;
+    notifyListeners();
+  }
+
+  // Get current user's bookings 
+  Future<void> getUserBookings(BuildContext context, Presenter presenter) async {
+    try {
+      setLoading(true);
+      userBookings = await FirebaseServices.getUserBookings();
     } catch (e) {
       Future.delayed(Duration.zero, () {
         showError(context, e.toString());

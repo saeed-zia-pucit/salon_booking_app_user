@@ -1,8 +1,6 @@
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 import 'package:salon_app/models/booking_model.dart';
 import 'package:salon_app/models/provider_response_model.dart';
 import 'package:salon_app/models/service_response_model.dart';
@@ -46,8 +44,7 @@ class FirebaseServices {
 
   //* Create new booking for salon provider
   static Future<void> createBooking(
-      {required String userId,
-      required String providerId,
+      {
       required String bookingOn,
       required List<int> services,
       required List<String> timeSlots}) async {
@@ -57,8 +54,21 @@ class FirebaseServices {
               'bookings') // Replace 'users' with your actual collection name
           .doc()
           .set({
-        'user_id': userId,
-        'provider_id': providerId,
+        'user': {
+          'user_id': spUtil?.user.uid,
+          'name': spUtil?.user.name,
+          'email': spUtil?.user.email,
+          'profile_image': spUtil?.user.imageUrl
+        },
+        'provider': {
+          'provider_id': spUtil?.provider.uid,
+          'name': spUtil?.provider.name,
+          'email': spUtil?.provider.email,
+          'profile_image':
+              (spUtil?.provider.store?.coverImages?.isNotEmpty ?? false)
+                  ? spUtil?.provider.store?.coverImages?.first
+                  : ''
+        },
         'services': services,
         'time_slots': timeSlots,
         'booking_on': bookingOn,
@@ -70,11 +80,31 @@ class FirebaseServices {
   }
 
   //* Fetch bookings based on booking date
-  static Future<List<BookingModel>> getBookings({required String bookingDate}) async {
+  static Future<List<BookingModel>> getBookings(
+      {required String bookingDate}) async {
     try {
       QuerySnapshot snapshot = await _firestore
           .collection('bookings')
           .where('booking_on', isEqualTo: bookingDate)
+          .get();
+
+      List<BookingModel> bookings = [];
+      bookings = snapshot.docs
+          .map((doc) =>
+              BookingModel.fromJson(doc.data() as Map<String, dynamic>))
+          .toList();
+      return bookings;
+    } catch (e) {
+      throw Exception("Failed to fetch bookings!");
+    }
+  }
+
+  //* Fetch current user's bookings only
+  static Future<List<BookingModel>> getUserBookings() async {
+    try {
+      QuerySnapshot snapshot = await _firestore
+          .collection('bookings')
+          .where('user.user_id', isEqualTo: spUtil?.user.uid)
           .get();
 
       List<BookingModel> bookings = [];
