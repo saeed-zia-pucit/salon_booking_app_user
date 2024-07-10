@@ -91,28 +91,34 @@ class _MyOrderScreenState extends State<MyOrderScreen> implements Presenter {
                                 child: Stack(
                                   alignment: Alignment.bottomCenter,
                                   children: [
-                                    ClipRRect(
-                                      borderRadius: const BorderRadius.all(
-                                          Radius.circular(8.0)),
-                                      child: CachedNetworkImage(
-                                          width:
-                                              MediaQuery.of(context).size.width,
-                                          fit: BoxFit.cover,
-                                          imageUrl: homeViewModel
-                                                  .userBookings[index]
-                                                  .provider
-                                                  ?.profileImage ??
-                                              ''),
-                                    ),
+                                    // ClipRRect(
+                                    //   borderRadius: const BorderRadius.all(
+                                    //       Radius.circular(8.0)),
+                                    //   child: CachedNetworkImage(
+                                    //       width:
+                                    //           MediaQuery.of(context).size.width,
+                                    //       fit: BoxFit.cover,
+                                    //       imageUrl: homeViewModel
+                                    //               .userBookings[index]
+                                    //               .provider
+                                    //               ?.profileImage ??
+                                    //           ''),
+                                    // ),
                                     Container(
                                       width: MediaQuery.of(context).size.width,
-                                      padding: const EdgeInsets.all(5.0),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 5.0, vertical: 10.0),
                                       decoration: BoxDecoration(
+                                          boxShadow: [
+                                            BoxShadow(
+                                                offset: const Offset(0, 1),
+                                                blurRadius: 4.0,
+                                                color: Colors.black
+                                                    .withOpacity(0.45))
+                                          ],
                                           color: Colors.cyan[400],
-                                          borderRadius: const BorderRadius.only(
-                                              bottomLeft: Radius.circular(8.0),
-                                              bottomRight:
-                                                  Radius.circular(8.0))),
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(8.0))),
                                       child: Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
@@ -130,7 +136,8 @@ class _MyOrderScreenState extends State<MyOrderScreen> implements Presenter {
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
-                                              const Text("Reservation confirmed",
+                                              const Text(
+                                                  "Reservation confirmed",
                                                   style: TextStyle(
                                                       color: Colors.white)),
                                               Text(
