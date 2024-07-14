@@ -34,7 +34,10 @@ class _BookingScreenState extends State<BookingScreen> implements Presenter {
   void initState() {
     bookingOn = getFormattedDate(DateTime.now());
     log("Initial booking day value: $bookingOn");
+    DateTime dateTime = DateTime.parse(bookingOn ?? '');
 
+    // Format the date to get the day name
+    String dayName = DateFormat('EEEE').format(dateTime);
     Future.delayed(Duration.zero, () {
       final serviceIds = spUtil?.provider.store?.serviceIds;
       for (int i = 0; i < (serviceIds?.length ?? 0); i++) {
@@ -45,13 +48,13 @@ class _BookingScreenState extends State<BookingScreen> implements Presenter {
           }
         }
       }
-      getSlots();
+      getSlots(dayName);
       setState(() {});
     });
     super.initState();
   }
 
-  getSlots() {
+  getSlots(String dayName) {
     timeSlots.clear();
     List<String> slots = [];
     if (spUtil?.provider.store?.availableSlot?.id == 1) {
@@ -74,29 +77,33 @@ class _BookingScreenState extends State<BookingScreen> implements Presenter {
           60);
     }
     if (slots.isNotEmpty) {
-      String currentDate = getFormattedDate(DateTime.now());
-      if (currentDate == bookingOn) {
-        DateTime now = DateTime.now();
-        String currentTimeString = DateFormat('HH:mm').format(now);
-        DateTime currentTime = DateFormat('HH:mm').parse(currentTimeString);
-        for (var element in slots) {
-          List<String> parts = element.split(' - ');
-          // DateTime startTime = DateFormat('HH:mm').parse(parts[0]);
-          DateTime endTime = DateFormat('HH:mm').parse(parts[1]);
-          if (currentTime.isBefore(endTime)) {
+      if (spUtil?.provider.store?.days?.any((element) =>
+              element.dayName?.toLowerCase() == dayName.toLowerCase()) ??
+          false) {
+        String currentDate = getFormattedDate(DateTime.now());
+        if (currentDate == bookingOn) {
+          DateTime now = DateTime.now();
+          String currentTimeString = DateFormat('HH:mm').format(now);
+          DateTime currentTime = DateFormat('HH:mm').parse(currentTimeString);
+          for (var element in slots) {
+            List<String> parts = element.split(' - ');
+            // DateTime startTime = DateFormat('HH:mm').parse(parts[0]);
+            DateTime endTime = DateFormat('HH:mm').parse(parts[1]);
+            if (currentTime.isBefore(endTime)) {
+              timeSlots.add(TimeSlotModel(name: element));
+            } else {
+              continue;
+            }
+          }
+        } else {
+          for (var element in slots) {
             timeSlots.add(TimeSlotModel(name: element));
-          } else {
-            continue;
           }
         }
-      } else {
-        for (var element in slots) {
-          timeSlots.add(TimeSlotModel(name: element));
-        }
       }
+      checkSlotAvailability(bookingOn ?? '');
+      setState(() {});
     }
-    checkSlotAvailability(bookingOn ?? '');
-    setState(() {});
   }
 
   @override
@@ -155,7 +162,14 @@ class _BookingScreenState extends State<BookingScreen> implements Presenter {
                             onDateChanged: (date) {
                               bookingOn = date;
                               log(bookingOn ?? ''); // Output: 2024-07-06
-                              getSlots();
+                              DateTime dateTime =
+                                  DateTime.parse(bookingOn ?? '');
+
+                              // Format the date to get the day name
+                              String dayName =
+                                  DateFormat('EEEE').format(dateTime);
+
+                              getSlots(dayName);
                               setState(() {});
                             },
                           ),
